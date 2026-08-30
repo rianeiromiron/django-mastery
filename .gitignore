@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# Environment variables
+.env
+
+# Static files
+staticfiles/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Type checking
+.mypy_cache/
+
+# Apps con repositorio git propio (django-<app> en GitHub) -
+# no se versionan dentro del repo raiz.
+/blog_estatico/
+/catalogo/
+/dashboard/
+/eventos/
+/gestor_tareas/
+/libreria/
+/membresia/
+/tienda/
+/tweets/

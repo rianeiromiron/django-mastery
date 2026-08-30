@@ -1,0 +1,14 @@
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+.mypy_cache/
+*.log
+.env
+.git/
+.gitignore
+db.sqlite3
+staticfiles/
+media/
+PROYECTO.md
