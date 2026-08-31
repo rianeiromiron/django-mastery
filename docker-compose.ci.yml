@@ -1,0 +1,13 @@
+# Override de docker-compose.yml usado SOLO por los pipelines de CI de cada
+# app (skill ci-pipeline). Apunta web/celery_worker a settings_ci.py/
+# asgi_ci.py en vez de settings.py/asgi.py, que exigen las 9 apps presentes.
+# Uso: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build
+services:
+  web:
+    command: sh -c "python manage.py migrate --noinput && daphne -b 0.0.0.0 -p 8000 django_mastery.asgi_ci:application"
+    environment:
+      DJANGO_SETTINGS_MODULE: django_mastery.settings_ci
+
+  celery_worker:
+    environment:
+      DJANGO_SETTINGS_MODULE: django_mastery.settings_ci
