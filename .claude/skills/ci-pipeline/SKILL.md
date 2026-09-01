@@ -41,6 +41,20 @@ la app contra Django + Redis + Celery levantados con `docker-compose`.
   que apunta `web`/`celery_worker` a esos settings de CI, sin tocar el
   compose normal. `mypy.ini` (raíz) trae una config permisiva con
   `django-stubs` apuntando a `settings_ci`.
+- `blog_estatico/base.html` es el layout que extienden varias apps
+  (`tweets`, `tienda`, `membresia`, ...). `settings_ci.py` ya declara
+  `blog_estatico` como app "base" siempre instalada (para que ese template
+  y las urls `home`/`about` de su nav resuelvan), pero **el código de
+  `blog_estatico` no existe en el checkout de `django-mastery`** — está
+  gitignoreado ahí igual que las otras 8 apps, cada una vive solo en su
+  propio repo. Por eso el workflow de cada app (salvo el de `blog_estatico`
+  mismo) tiene que clonar también `rianeiromiron/django-blog_estatico`
+  dentro de `django_mastery/blog_estatico`, igual que ya clona
+  `django-mastery` y la app bajo prueba — ver el paso "Checkout
+  blog_estatico" en el workflow de abajo. Si algún template de la app que
+  estás agregando NO extiende `blog_estatico/base.html`, este paso no hace
+  falta que falle nada igual (queda ahí sin usarse), así que se agrega
+  siempre por consistencia.
 - Antes de escribir nada en un repo de app, valida en local con el venv
   del proyecto (`.venv/Scripts/python.exe`, o el equivalente en tu
   sistema) que la app arranca aislada:
@@ -48,6 +62,12 @@ la app contra Django + Redis + Celery levantados con `docker-compose`.
   CI_APP_NAME=<app> python manage.py check --settings=django_mastery.settings_ci
   CI_APP_NAME=<app> python manage.py test <app> --settings=django_mastery.settings_ci
   ```
+  Ojo: esta validación local **no** detecta que falte clonar
+  `blog_estatico` en el Action — localmente esa carpeta ya existe en disco
+  junto a las demás apps, aunque el checkout real de `django-mastery` en
+  GitHub no la traiga. Si un test hace un `GET` real a una vista cuyo
+  template extiende `blog_estatico/base.html`, la única forma de confirmar
+  que el pipeline funciona es corriendo el Action de verdad (paso 9).
   Si algo falla ahí, decide junto al usuario si es un bug real de la app
   (como pasó con `tweets`, que ya fallaba igual con los settings normales)
   o si hace falta ajustar `settings_ci.py`/`urls_ci.py` (por ejemplo, otra
@@ -92,6 +112,13 @@ hay que agregarle el pipeline.
              repository: rianeiromiron/django-mastery
              path: django_mastery
 
+         - name: Checkout blog_estatico (layout base compartido)
+           if: env.CI_APP_NAME != 'blog_estatico'
+           uses: actions/checkout@v4
+           with:
+             repository: rianeiromiron/django-blog_estatico
+             path: django_mastery/blog_estatico
+
          - name: Copiar la app dentro de django_mastery
            run: |
              rm -rf "django_mastery/${CI_APP_NAME}"
@@ -117,6 +144,7 @@ hay que agregarle el pipeline.
            run: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build
 
          - name: Wait for Django to be ready
+           working-directory: django_mastery
            run: |
              for i in $(seq 1 30); do
                if curl -sf http://localhost:8000/admin/login/ > /dev/null; then
@@ -126,6 +154,10 @@ hay que agregarle el pipeline.
                sleep 2
              done
              echo "Django nunca respondio"
+             echo "--- docker compose ps ---"
+             docker compose -f docker-compose.yml -f docker-compose.ci.yml ps -a
+             echo "--- logs web ---"
+             docker compose -f docker-compose.yml -f docker-compose.ci.yml logs web
              exit 1
 
          - uses: actions/setup-python@v5
