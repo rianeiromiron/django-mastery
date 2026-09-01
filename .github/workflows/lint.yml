@@ -1,0 +1,32 @@
+name: lint
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Run Ruff
+        run: |
+          pip install ruff
+          ruff check .
+
+      - name: Run mypy
+        run: |
+          pip install -r requirements.txt mypy
+          # Sin --config-file se usaria mypy.ini, que activa el plugin de
+          # django-stubs apuntando a settings_ci - ese plugin necesita
+          # django.setup() con una app real instalada (CI_APP_NAME), que
+          # este repo no trae (cada app vive en su propio repo, ver skill
+          # ci-pipeline). Este check es solo tipado estatico de los
+          # settings/urls/asgi compartidos, sin cargar Django.
+          mypy --config-file= --ignore-missing-imports django_mastery/ manage.py

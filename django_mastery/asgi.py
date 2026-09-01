@@ -17,7 +17,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_mastery.settings')
 
 django_asgi_app = get_asgi_application()
 
-from dashboard.routing import websocket_urlpatterns  # noqa: E402
+from dashboard.routing import websocket_urlpatterns
 
 application = ProtocolTypeRouter({
     'http': django_asgi_app,

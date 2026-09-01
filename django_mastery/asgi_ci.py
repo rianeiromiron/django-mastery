@@ -16,6 +16,7 @@ django_asgi_app = get_asgi_application()
 if os.environ.get('CI_APP_NAME') == 'dashboard':
     from channels.auth import AuthMiddlewareStack
     from channels.routing import ProtocolTypeRouter, URLRouter
+
     from dashboard.routing import websocket_urlpatterns
 
     application = ProtocolTypeRouter({

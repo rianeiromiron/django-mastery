@@ -13,7 +13,7 @@ de las otras 8.
 
 import os
 
-from .settings import *  # noqa: F401,F403
+from .settings import *
 
 CI_APP_NAME = os.environ['CI_APP_NAME']
 

@@ -1,0 +1,5 @@
+[lint]
+# N999 (nombre de modulo invalido) se dispara por el guion en el nombre
+# del repo, que GitHub Actions usa como carpeta al clonar - no tiene
+# relacion con el codigo del proyecto.
+ignore = ["N999"]
