@@ -27,7 +27,11 @@ _CORE_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    # blog_estatico no tiene modelos ni se registra en urls_ci: se incluye
+    # solo para que su templates/blog_estatico/base.html (el layout base
+    # que extienden varias apps) resuelva via APP_DIRS en CI aislado.
+    'blog_estatico',
 ]
 
-INSTALLED_APPS = _CORE_APPS + [CI_APP_NAME]
+INSTALLED_APPS = _CORE_APPS + ([CI_APP_NAME] if CI_APP_NAME not in _CORE_APPS else [])
 ROOT_URLCONF = 'django_mastery.urls_ci'
