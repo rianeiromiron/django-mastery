@@ -3,3 +3,11 @@
 # del repo, que GitHub Actions usa como carpeta al clonar - no tiene
 # relacion con el codigo del proyecto.
 ignore = ["N999"]
+
+[lint.isort]
+# Sin esto, ruff clasifica `dashboard.routing` (import condicional en
+# asgi_ci.py) como first-party o no segun si la carpeta dashboard/ existe
+# fisicamente en disco - da resultados distintos en local (donde las 9
+# apps estan clonadas) vs en el checkout real de CI (donde ninguna app
+# existe, estan gitignoreadas). Declararlo a mano lo hace deterministico.
+known-first-party = ["dashboard"]
